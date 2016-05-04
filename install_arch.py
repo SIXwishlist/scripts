@@ -66,7 +66,7 @@ def install():
 
     # Install new mirrorlist
     code = subprocess.call(["pacman", "-Q", "arkos-mirrorlist"])
-    if code != 1:
+    if code != 0:
         m = "https://pkg.arkos.io/resources/arkos-mirrorlist-latest.pkg.tar.xz"
         data = urlopen(m)
         with open("/tmp/arkos-mirrorlist.pkg.tar.xz", "wb") as f:

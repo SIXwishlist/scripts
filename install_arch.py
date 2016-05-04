@@ -63,6 +63,21 @@ def askPermission():
 def install():
     """Install arkOS."""
     print("Installing new packages...")
+    subprocess.call(["pacman-key", "--init"])
+    code = subprocess.call(["pacman-key", "-r", "0585F850"])
+    if code != 0:
+        print("Failed to retrieve package signing key. Please retry.")
+        sys.exit(1)
+    code = subprocess.call(["pacman-key", "--lsign", "0585F850"])
+    if code != 0:
+        print("Failed to install and trust package signing key. Please retry.")
+        sys.exit(1)
+
+    # Install key
+    code = subprocess.call(["pacman", "-Su", "--noconfirm"])
+    if code != 0:
+        print("Failed to update system packages. Please retry.")
+        sys.exit(1)
 
     # Install new mirrorlist
     code = subprocess.call(["pacman", "-Q", "arkos-mirrorlist"])
@@ -89,9 +104,9 @@ def install():
 
     # Install new requirements
     required = ["avahi", "redis", "openldap", "nodejs", "npm", "git", "nginx",
-                "arkos-openldap", "cronie", "arkos-keyring", "arkos-cli",
-                "python2-aniso8601", "arkos-core", "arkos-kraken", "git",
-                "ntp", "arkos-genesis", "arkos-redis", "python2-pacman"]
+                "arkos-openldap", "cronie", "arkos-cli", "python2-aniso8601",
+                "arkos-core", "arkos-kraken", "git", "ntp", "arkos-genesis",
+                "arkos-redis", "python2-pacman"]
     code = subprocess.call(["pacman", "-Su", "--noconfirm"])
     if code != 0:
         print("Failed to update system packages. Please retry.")
@@ -102,7 +117,6 @@ def install():
     if code != 0:
         print("Failed to install new requirements. Please retry.")
         sys.exit(1)
-    subprocess.call(["pacman-key", "--init"])
     subprocess.call(["pacman-key", "--populate", "arkos"])
 
     # Configure nginx

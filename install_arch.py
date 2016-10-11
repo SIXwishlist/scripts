@@ -103,10 +103,7 @@ def install():
     subprocess.call(["pacman", "-Sy"])
 
     # Install new requirements
-    required = ["avahi", "redis", "openldap", "nodejs", "npm", "git", "nginx",
-                "arkos-openldap", "cronie", "arkos-cli", "python2-aniso8601",
-                "arkos-core", "arkos-kraken", "git", "ntp", "arkos-genesis",
-                "arkos-redis", "python2-pacman"]
+    required = ["arkos-core", "arkos-kraken", "arkos-genesis"]
     code = subprocess.call(["pacman", "-Su", "--noconfirm"])
     if code != 0:
         print("Failed to update system packages. Please retry.")
@@ -119,16 +116,23 @@ def install():
         sys.exit(1)
     subprocess.call(["pacman-key", "--populate", "arkos"])
 
-    # Configure nginx
-    if not os.path.exists("/srv/http/webapps"):
-        os.makedirs("/srv/http/webapps")
-    if not os.path.exists("/etc/nginx/sites-available"):
-        os.makedirs("/etc/nginx/sites-available")
-    if not os.path.exists("/etc/nginx/sites-enabled"):
-        os.makedirs("/etc/nginx/sites-enabled")
-    ngxdata = urlopen("https://gist.githubusercontent.com/peakwinter/8e9a3a1cf55745ad5b93c5282f3a92ff/raw/35a476562f703f059d41dfc81d1016d348a6da2b/nginx.conf")
-    with open("/etc/nginx/nginx.conf", "w") as f:
-        f.write(ngxdata.read().decode("utf-8"))
+    # Configure system
+    code = subprocess.call(["arkosctl", "init", "ldap"])
+    if code != 0:
+        print("Failed to configure system. Please retry.")
+        sys.exit(1)
+    code = subprocess.call(["arkosctl", "init", "nslcd"])
+    if code != 0:
+        print("Failed to configure system. Please retry.")
+        sys.exit(1)
+    code = subprocess.call(["arkosctl", "init", "nginx"])
+    if code != 0:
+        print("Failed to configure system. Please retry.")
+        sys.exit(1)
+    code = subprocess.call(["arkosctl", "init", "redis"])
+    if code != 0:
+        print("Failed to configure system. Please retry.")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -144,7 +148,7 @@ if __name__ == '__main__':
         sys.stdout.write("\n")
         sys.exit(1)
     subprocess.call(["systemctl", "enable", "avahi-daemon", "ntpd", "cronie",
-                     "arkos-redis", "krakend", "slapd", "nginx"])
+                     "krakend"])
     print()
     print(bcolors.OKGREEN + "Installation completed successfully. "
           "Please restart your computer." + bcolors.ENDC)

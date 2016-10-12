@@ -66,17 +66,26 @@ def install():
     subprocess.call(["pacman-key", "--init"])
     code = subprocess.call(["pacman-key", "-r", "0585F850"])
     if code != 0:
-        print("Failed to retrieve package signing key. Please retry.")
+        print(
+            bcolors.FAIL +
+            "Failed to retrieve package signing key. Please retry." +
+            bcolors.ENDC)
         sys.exit(1)
     code = subprocess.call(["pacman-key", "--lsign", "0585F850"])
     if code != 0:
-        print("Failed to install and trust package signing key. Please retry.")
+        print(
+            bcolors.FAIL +
+            "Failed to install and trust package signing key. Please retry." +
+            bcolors.ENDC)
         sys.exit(1)
 
     # Install key
     code = subprocess.call(["pacman", "-Su", "--noconfirm"])
     if code != 0:
-        print("Failed to update system packages. Please retry.")
+        print(
+            bcolors.FAIL +
+            "Failed to update system packages. Please retry." +
+            bcolors.ENDC)
         sys.exit(1)
 
     # Install new mirrorlist
@@ -90,7 +99,10 @@ def install():
                        "--noconfirm", "--needed"]
         code = subprocess.call(install_cmd)
         if code != 0:
-            print("Failed to install arkOS mirrorlist. Please retry.")
+            print(
+                bcolors.FAIL +
+                "Failed to install arkOS mirrorlist. Please retry." +
+                bcolors.ENDC)
             sys.exit(1)
 
     isRepoInstalled = False
@@ -103,41 +115,59 @@ def install():
     subprocess.call(["pacman", "-Sy"])
 
     # Install new requirements
-    required = ["arkos-core", "arkos-kraken", "arkos-genesis"]
+    required = ["arkos-core", "arkos-kraken", "arkos-genesis",
+                "python-pip", "python2-pip"]
     code = subprocess.call(["pacman", "-Su", "--noconfirm"])
     if code != 0:
-        print("Failed to update system packages. Please retry.")
+        print(
+            bcolors.FAIL +
+            "Failed to update system packages. Please retry." +
+            bcolors.ENDC)
         sys.exit(1)
     subprocess.call(["pacman-db-upgrade"])
     install_cmd = ["pacman", "-Sy"] + required + ["--noconfirm", "--needed"]
     code = subprocess.call(install_cmd)
     if code != 0:
-        print("Failed to install new requirements. Please retry.")
+        print(
+            bcolors.FAIL +
+            "Failed to install new requirements. Please retry." +
+            bcolors.ENDC)
         sys.exit(1)
     subprocess.call(["pacman-key", "--populate", "arkos"])
 
     # Configure system
     code = subprocess.call(["arkosctl", "init", "ldap"])
     if code != 0:
-        print("Failed to configure system. Please retry.")
-        sys.exit(1)
+        print(
+            bcolors.FAIL +
+            "Failed to configure system. Please retry "
+            "`sudo arkosctl init ldap`." + bcolors.ENDC)
     code = subprocess.call(["arkosctl", "init", "nslcd"])
     if code != 0:
-        print("Failed to configure system. Please retry.")
-        sys.exit(1)
+        print(
+            bcolors.FAIL +
+            "Failed to configure system. Please retry "
+            "`sudo arkosctl init nslcd`." + bcolors.ENDC)
     code = subprocess.call(["arkosctl", "init", "nginx"])
     if code != 0:
-        print("Failed to configure system. Please retry.")
-        sys.exit(1)
+        print(
+            bcolors.FAIL +
+            "Failed to configure system. Please retry "
+            "`sudo arkosctl init nginx`." + bcolors.ENDC)
     code = subprocess.call(["arkosctl", "init", "redis"])
     if code != 0:
-        print("Failed to configure system. Please retry.")
-        sys.exit(1)
+        print(
+            bcolors.FAIL +
+            "Failed to configure system. Please retry "
+            "`sudo arkosctl init redis`." + bcolors.ENDC)
 
 
 if __name__ == '__main__':
     if os.geteuid() != 0:
-        print("You must run this script as root, or prefixed with `sudo`.")
+        print(
+            bcolors.FAIL +
+            "You must run this script as root, or prefixed with `sudo`." +
+            bcolors.ENDC)
         sys.exit(1)
     askPermission()
     try:

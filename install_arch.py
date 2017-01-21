@@ -116,7 +116,7 @@ def install():
 
     # Install new requirements
     required = ["arkos-core", "arkos-kraken", "arkos-genesis",
-                "python-pip", "python2-pip"]
+                "python-pip", "python2-pip", "patch"]
     code = subprocess.call(["pacman", "-Su", "--noconfirm"])
     if code != 0:
         print(
@@ -133,10 +133,11 @@ def install():
             "Failed to install new requirements. Please retry." +
             bcolors.ENDC)
         sys.exit(1)
+    subprocess.call(["pacman", "-S", "arkos-keyring"])
     subprocess.call(["pacman-key", "--populate", "arkos"])
 
     # Configure system
-    code = subprocess.call(["arkosctl", "init", "ldap"])
+    code = subprocess.call(["arkosctl", "init", "ldap", "--yes"])
     if code != 0:
         print(
             bcolors.FAIL +
